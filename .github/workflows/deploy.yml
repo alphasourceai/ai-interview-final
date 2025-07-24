@@ -1,0 +1,32 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ai-interview-assistant-3c8e0
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ai-interview-api \
+            --source . \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --runtime nodejs20 \
+            --memory 512Mi \
+            --timeout 60s \
+            --port 8080
